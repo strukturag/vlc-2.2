@@ -7,8 +7,6 @@ $(TARBALLS)/libde265-$(LIBDE265_VERSION).tar.gz:
 	$(call download,$(LIBDE265_URL))
 
 .sum-libde265: libde265-$(LIBDE265_VERSION).tar.gz
-	$(warning $@ not implemented)
-	touch $@
 
 libde265: libde265-$(LIBDE265_VERSION).tar.gz .sum-libde265
 	$(UNPACK)
