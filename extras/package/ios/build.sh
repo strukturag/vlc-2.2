@@ -251,7 +251,6 @@ echo "EXTRA_CFLAGS += ${EXTRA_CFLAGS}" >> config.mak
 echo "EXTRA_LDFLAGS += ${EXTRA_LDFLAGS}" >> config.mak
 make fetch
 make
-make .libde265
 spopd
 
 info "Bootstraping vlc"
