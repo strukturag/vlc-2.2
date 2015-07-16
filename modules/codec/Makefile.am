@@ -95,6 +95,13 @@ libschroedinger_plugin_la_LIBADD = $(LIBS_schroedinger)
 EXTRA_LTLIBRARIES += libschroedinger_plugin.la
 codec_LTLIBRARIES += $(LTLIBschroedinger)
 
+libde265_plugin_la_SOURCES = codec/libde265dec.c
+libde265_plugin_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_de265)
+libde265_plugin_la_LDFLAGS = $(AM_LDFLAGS) -rpath '$(codecdir)'
+libde265_plugin_la_LIBADD = $(LIBS_de265)
+EXTRA_LTLIBRARIES += libde265_plugin.la
+codec_LTLIBRARIES += $(LTLIBde265)
+
 
 ### Image codecs ###
 
