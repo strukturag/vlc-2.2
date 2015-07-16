@@ -1,20 +1,20 @@
 dnl Autoconf settings for vlc
 
-AC_COPYRIGHT([Copyright 2002-2014 VLC authors and VideoLAN])
+AC_COPYRIGHT([Copyright 1999-2015 VLC authors and VideoLAN])
 
-AC_INIT(vlc, 2.2.0-rc2)
+AC_INIT(vlc, 2.2.0)
 VERSION_MAJOR=2
 VERSION_MINOR=2
 VERSION_REVISION=0
 VERSION_EXTRA=0
-VERSION_DEV=rc2
+VERSION_DEV=
 
 PKGDIR="vlc"
 AC_SUBST(PKGDIR)
 
 CONFIGURE_LINE="`echo "$0 $ac_configure_args" | sed -e 's/\\\/\\\\\\\/g'`"
 CODENAME="Weatherwax"
-COPYRIGHT_YEARS="1996-2014"
+COPYRIGHT_YEARS="1996-2015"
 
 AC_CONFIG_SRCDIR(src/libvlc.c)
 AC_CONFIG_AUX_DIR(autotools)
@@ -56,7 +56,11 @@ AC_PROG_CC_C99
 AC_USE_SYSTEM_EXTENSIONS
 AC_DEFINE([_FORTIFY_SOURCE], 2, [Define to 2 to get glibc warnings.])
 AC_DEFINE([_FILE_OFFSET_BITS], 64, [Define to 64 for large files support.])
-AC_DEFINE([_REENTRANT],, [Define to expose reentrant functions.])
+AH_TOP([
+#ifndef _REENTRANT
+# define _REENTRANT
+#endif
+])
 AC_DEFINE([_THREAD_SAFE],, [Same as _REENTANT for some other OSes.])
 AC_DEFINE([__LIBVLC__],, [Define within the LibVLC source code tree.])
 AC_DEFINE([WIN32_LEAN_AND_MEAN],, [Define to limit the scope of <windows.h>.])
@@ -289,6 +293,7 @@ case "${host_os}" in
   *os2*)
     SYS=os2
     LDFLAGS="${LDFLAGS} -Zomf -Zbin-files -Zargs-wild -Zhigh-mem"
+    AC_LIBOBJ([freeaddrinfo])
     ;;
   *)
     SYS="${host_os}"
@@ -529,7 +534,7 @@ need_libc=false
 
 dnl Check for usual libc functions
 AC_CHECK_DECLS([nanosleep],,,[#include <time.h>])
-AC_CHECK_FUNCS([daemon fcntl fstatvfs fork getenv getpwuid_r isatty lstat memalign mmap openat pread posix_fadvise posix_madvise setlocale stricmp strnicmp strptime uselocale])
+AC_CHECK_FUNCS([daemon fcntl fstatvfs fork getenv getpwuid_r isatty lstat memalign mmap open_memstream openat pread posix_fadvise posix_madvise setlocale stricmp strnicmp strptime uselocale])
 AC_REPLACE_FUNCS([atof atoll dirfd fdopendir flockfile fsync getdelim getpid gmtime_r lldiv localtime_r nrand48 poll posix_memalign rewind setenv strcasecmp strcasestr strdup strlcpy strndup strnlen strsep strtof strtok_r strtoll swab tdestroy strverscmp])
 AC_CHECK_FUNCS(fdatasync,,
   [AC_DEFINE(fdatasync, fsync, [Alias fdatasync() to fsync() if missing.])
@@ -601,8 +606,8 @@ AC_SEARCH_LIBS(connect, [socket], [
 ])
 
 AC_SEARCH_LIBS([inet_pton], [nsl], [
- AS_IF([test "$ac_cv_search_getaddrinfo" != "none required"], [
-    SOCKET_LIBS="$ac_cv_search_getaddrinfo $SOCKET_LIBS"
+ AS_IF([test "$ac_cv_search_inet_pton" != "none required"], [
+    SOCKET_LIBS="$ac_cv_search_inet_pton $SOCKET_LIBS"
   ])
 ],, [${SOCKET_LIBS}])
 
@@ -1715,7 +1720,7 @@ dnl
 dnl  libsmbclient plugin
 dnl
 PKG_ENABLE_MODULES_VLC([SMBCLIENT], [smb], [smbclient], (SMB/CIFS support), [auto])
-AS_IF([test "${SYS}" = "mingw32"], [ VLC_ADD_PLUGIN([access_smb]) ])
+AS_IF([test "${SYS}" = "mingw32"], [ VLC_ADD_PLUGIN([smb]) ])
 
 
 dnl
@@ -2768,7 +2773,7 @@ PKG_ENABLE_MODULES_VLC([SCHROEDINGER], [], [schroedinger-1.0 >= 1.0.10], [dirac 
 dnl
 dnl  libde265 decoder plugin (for hevc/h.265 video)
 dnl
-PKG_ENABLE_MODULES_VLC([DE265], [], [libde265 >= 0.9], [hevc/h.265 decoder using libde265], [auto])
+PKG_ENABLE_MODULES_VLC([DE265], [], [libde265 >= 1.0.2], [hevc/h.265 decoder using libde265], [auto])
 
 dnl
 dnl  PNG decoder module
@@ -3101,10 +3106,6 @@ AC_ARG_ENABLE(xcb,
 AC_ARG_ENABLE(xvideo,
   [  --enable-xvideo         XVideo support (default enabled)],, [
     enable_xvideo="$enable_xcb"
-])
-AC_ARG_ENABLE(glx,
-  [  --enable-glx            OpenGL support through GLX (default enabled)],, [
-  enable_glx="$enable_xcb"
 ])
 
 have_xcb="no"
@@ -3722,9 +3723,9 @@ AS_IF([test "${enable_qt}" != "no"], [
       ])
       QT_PATH="$(eval $PKG_CONFIG --variable=exec_prefix Qt5Core)"
       QT_HOST_PATH="$(eval $PKG_CONFIG --variable=host_bins Qt5Core)"
-      AC_PATH_PROGS(MOC, [moc-qt5 moc], moc, [${QT_HOST_PATH} ${QT_PATH}/bin ${CONTRIB_DIR}/bin])
-      AC_PATH_PROGS(RCC, [rcc-qt5 rcc], rcc, [${QT_HOST_PATH} ${QT_PATH}/bin ${CONTRIB_DIR}/bin])
-      AC_PATH_PROGS(UIC, [uic-qt5 uic], uic, [${QT_HOST_PATH} ${QT_PATH}/bin ${CONTRIB_DIR}/bin])
+      AC_PATH_PROGS(MOC, [moc-qt5 moc], moc, ["${QT_HOST_PATH}" "${QT_PATH}/bin" "${CONTRIB_DIR}/bin"])
+      AC_PATH_PROGS(RCC, [rcc-qt5 rcc], rcc, ["${QT_HOST_PATH}" "${QT_PATH}/bin" "${CONTRIB_DIR}/bin"])
+      AC_PATH_PROGS(UIC, [uic-qt5 uic], uic, ["${QT_HOST_PATH}" "${QT_PATH}/bin" "${CONTRIB_DIR}/bin"])
     ], [
       PKG_CHECK_MODULES([QT], [QtCore QtGui >= 4.6.0],, [
         AS_IF([test -n "${enable_qt}"],[
@@ -3735,9 +3736,9 @@ AS_IF([test "${enable_qt}" != "no"], [
         enable_qt="no"
       ])
       QT_PATH="$(eval $PKG_CONFIG --variable=exec_prefix QtCore)"
-      AC_PATH_PROGS(MOC, [moc-qt4 moc], moc, [${QT_PATH}/bin ${CONTRIB_DIR}/bin])
+      AC_PATH_PROGS(MOC, [moc-qt4 moc], moc, ["${QT_PATH}/bin" "${CONTRIB_DIR}/bin"])
       AC_PATH_PROG(RCC, rcc, rcc, [${QT_PATH}/bin ${CONTRIB_DIR}/bin])
-      AC_PATH_PROGS(UIC, [uic-qt4 uic], uic, [${QT_PATH}/bin ${CONTRIB_DIR}/bin])
+      AC_PATH_PROGS(UIC, [uic-qt4 uic], uic, ["${QT_PATH}/bin" "${CONTRIB_DIR}/bin"])
     ])
 ])
 AS_IF([test "${enable_qt}" != "no"], [
