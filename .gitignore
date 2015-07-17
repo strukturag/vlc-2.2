@@ -52,3 +52,8 @@ build-*
 contrib-*
 install-*
 
+# Ignore libde265 specific entries
+.ccache/
+.vagrant/
+build_result/
+scripts/vagrant/apt-cacher.conf
