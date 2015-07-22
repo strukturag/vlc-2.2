@@ -1,0 +1,57 @@
+diff --git a/configure.ac b/configure.ac
+index aa94419..fc561a2 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -58,6 +58,10 @@ AM_CONDITIONAL([HAVE_VISIBILITY], [test "x$HAVE_VISIBILITY" != "x0"])
+ # Checks for header files.
+ AC_CHECK_HEADERS([stdint.h stdlib.h string.h malloc.h signal.h setjmp.h stddef.h sys/time.h])
+ 
++AC_LANG_PUSH(C++)
++AC_CHECK_HEADERS([cstdint])
++AC_LANG_POP(C++)
++
+ # Checks for typedefs, structures, and compiler characteristics.
+ AC_HEADER_STDBOOL
+ AC_TYPE_SIZE_T
+diff --git a/libde265/alloc_pool.h b/libde265/alloc_pool.h
+index fd3ada3..f4a0c0f 100644
+--- a/libde265/alloc_pool.h
++++ b/libde265/alloc_pool.h
+@@ -27,7 +27,7 @@
+ #include <cstddef>
+ #ifdef HAVE_STDINT_H
+ #include <stdint.h>
+-#else
++#elif HAVE_CSTDINT
+ #include <cstdint>
+ #endif
+ 
+diff --git a/libde265/util.h b/libde265/util.h
+index 679c225..fc6243d 100644
+--- a/libde265/util.h
++++ b/libde265/util.h
+@@ -27,6 +27,8 @@
+ 
+ #include <stdio.h>
+ 
++#define USE_STD_TR1_NAMESPACE
++
+ #include "libde265/de265.h"
+ 
+ #ifdef __GNUC__
+@@ -70,6 +72,15 @@
+ namespace std { using namespace std::tr1; }
+ #endif
+ 
++namespace std {
++
++template<typename _Tp>
++  inline typename std::remove_reference<_Tp>::type&&
++    move(_Tp&& __t)
++   { return static_cast<typename std::remove_reference<_Tp>::type&&>(__t); }
++
++}
++
+ #if __GNUC__ && GCC_VERSION < 40600
+ // nullptr was introduced in gcc 4.6, a simple alias should be fine for our use case
+ #define nullptr NULL
