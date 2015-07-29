@@ -18,6 +18,8 @@ libde265: libde265-$(LIBDE265_VERSION).tar.gz .sum-libde265
 	$(MOVE)
 
 .libde265: libde265
-	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) -O3" CXXFLAGS="$(CXXFLAGS) -O3" ./configure $(HOSTCONF) --disable-dec265 --disable-sherlock265
+	cd $< && cp ../../src/libde265/libde265_osx.diff ./libde265_osx.diff && patch -p1 < libde265_osx.diff 
+	cd $< && ./autogen.sh
+	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) -O3" CXXFLAGS="$(CXXFLAGS) -O3" ./configure $(HOSTCONF) --disable-dec265 --disable-sherlock265 --disable-arm
 	cd $< && $(MAKE) install
 	touch $@
